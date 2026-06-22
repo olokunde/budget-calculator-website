@@ -1273,7 +1273,7 @@ export default function App() {
         </div>
         <div className="contact-card">
           <p>Have questions about BudgetFlow? Send feedback or ask for a new feature.</p>
-          <a className="link-button" href="mailto:hello@example.com">Email support</a>
+          <a className="link-button" href="mailto:olokunde.o@gmail.com">Email support</a>
         </div>
       </section>
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
+import { ARTICLES } from './articles'
 
 const STORAGE_KEY = 'budgetInputs:v1'
 
@@ -67,6 +68,21 @@ function useAnimatedNumber(target, duration = 500) {
   return value
 }
 
+function useDarkMode() {
+  const [dark, setDark] = useState(() => {
+    try {
+      const stored = localStorage.getItem('theme')
+      if (stored) return stored === 'dark'
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+    } catch { return false }
+  })
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+    try { localStorage.setItem('theme', dark ? 'dark' : 'light') } catch {}
+  }, [dark])
+  return [dark, setDark]
+}
+
 function useInView(options = {}) {
   const ref = useRef(null)
   const [inView, setInView] = useState(false)
@@ -92,6 +108,111 @@ const CALC_ICONS = {
   mortgage: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
   retirement: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
   emergency: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+}
+
+function ArticleOverlay({ article, onClose }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey) }
+  }, [onClose])
+
+  return (
+    <div className="article-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={article.title}>
+      <div className="article-overlay-inner" onClick={(e) => e.stopPropagation()}>
+        <div className="article-overlay-header">
+          <div className="article-meta-row">
+            <span className="article-cat-badge">{article.category}</span>
+            <span className="article-read-time">{article.readTime}</span>
+          </div>
+          <button className="article-close-btn" onClick={onClose} aria-label="Close article">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <h1 className="article-overlay-title">{article.title}</h1>
+        <div className="article-body">
+          {article.content.map((block, i) => {
+            if (block.h) return <h2 key={i} className="article-subhead">{block.h}</h2>
+            if (block.p) return <p key={i} className="article-para">{block.p}</p>
+            if (block.ul) return <ul key={i} className="article-list">{block.ul.map((item, j) => <li key={j}>{item}</li>)}</ul>
+            if (block.tip) return <div key={i} className="article-tip"><strong>Tip: </strong>{block.tip}</div>
+            return null
+          })}
+        </div>
+        <button className="btn btn-secondary article-back-btn" onClick={onClose}>← Back to articles</button>
+      </div>
+    </div>
+  )
+}
+
+function ContactForm() {
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
+  const [status, setStatus] = useState('idle')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setStatus('sending')
+    try {
+      const res = await fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      setStatus(data.ok ? 'success' : 'error')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="contact-success">
+        <div className="contact-success-icon">✓</div>
+        <h3>Message sent!</h3>
+        <p>Thanks for reaching out — we&apos;ll get back to you shortly.</p>
+        <button className="btn btn-secondary" onClick={() => { setStatus('idle'); setForm({ name: '', email: '', subject: '', message: '' }) }}>
+          Send another message
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <form className="contact-form" onSubmit={handleSubmit} noValidate>
+      <div className="contact-grid">
+        <div className="field">
+          <label htmlFor="cf-name">Name</label>
+          <input id="cf-name" type="text" required placeholder="Your name" value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
+        </div>
+        <div className="field">
+          <label htmlFor="cf-email">Email</label>
+          <input id="cf-email" type="email" required placeholder="you@example.com" value={form.email} onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))} />
+        </div>
+      </div>
+      <div className="field">
+        <label htmlFor="cf-subject">Subject</label>
+        <select id="cf-subject" value={form.subject} onChange={(e) => setForm((s) => ({ ...s, subject: e.target.value }))}>
+          <option value="">Select a topic</option>
+          <option>General question</option>
+          <option>Feature request</option>
+          <option>Bug report</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div className="field">
+        <label htmlFor="cf-message">Message</label>
+        <textarea id="cf-message" required rows={5} placeholder="How can we help?" value={form.message} onChange={(e) => setForm((s) => ({ ...s, message: e.target.value }))} />
+      </div>
+      {status === 'error' && (
+        <p className="contact-error">Something went wrong. Email us directly at <a href="mailto:olokunde.o@gmail.com">olokunde.o@gmail.com</a></p>
+      )}
+      <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
+        {status === 'sending' ? 'Sending…' : 'Send message'}
+      </button>
+    </form>
+  )
 }
 
 function CompoundCalculator() {
@@ -619,10 +740,12 @@ function EmergencyCalculator() {
 }
 
 export default function App() {
+  const [dark, setDark] = useDarkMode()
   const [inputs, setInputs] = useLocalState(STORAGE_KEY, defaultInputs)
   const [savingsGoal, setSavingsGoal] = useLocalState('savingsGoal:v1', { current: '', target: '', monthly: '' })
   const [debtPayoff, setDebtPayoff] = useLocalState('debtPayoff:v1', { balance: '', rate: '', payment: '' })
   const [menuOpen, setMenuOpen] = useState(false)
+  const [selectedArticle, setSelectedArticle] = useState(null)
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
@@ -724,6 +847,7 @@ export default function App() {
 
   return (
     <div className="app">
+      {selectedArticle && <ArticleOverlay article={selectedArticle} onClose={() => setSelectedArticle(null)} />}
       <header className="site-header">
         <div className="brand-block">
           <div className="brand-mark">BF</div>
@@ -732,6 +856,17 @@ export default function App() {
             <p className="brand-tagline">Modern finance for every plan</p>
           </div>
         </div>
+        <button
+          className="theme-toggle"
+          type="button"
+          aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+          onClick={() => setDark((d) => !d)}
+        >
+          {dark
+            ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          }
+        </button>
         <button
           className={`nav-toggle ${menuOpen ? 'open' : ''}`}
           aria-label="Toggle navigation"
@@ -1207,21 +1342,22 @@ export default function App() {
           </div>
         </div>
         <div className="article-grid">
-          {[
-            { title: 'How to create a monthly budget', summary: 'Build a realistic budget that keeps your expenses and savings in sync.' },
-            { title: 'What is the 50/30/20 rule?', summary: 'Learn the popular budgeting method for needs, wants, and savings.' },
-            { title: 'How to save money fast', summary: 'Practical tips for boosting savings without cutting essentials.' },
-            { title: 'How to build an emergency fund', summary: 'Why a three-to-six month reserve is essential for financial stability.' },
-            { title: 'How to pay off debt faster', summary: 'Use strategy and momentum to reduce debt stress and interest costs.' },
-            { title: 'Budgeting mistakes to avoid', summary: 'Common planning errors that derail your financial progress.' },
-            { title: 'Compound interest explained', summary: 'Understand how interest multiplies your savings over time.' },
-            { title: 'How loan payments work', summary: 'Learn what makes up a monthly loan payment and total cost.' },
-            { title: 'How to plan for retirement', summary: 'A simple framework for setting long-term savings goals.' },
-            { title: 'How to track monthly expenses', summary: 'Easy ways to monitor spending and refine your budget.' },
-          ].map((item) => (
-            <article className="article-card" key={item.title}>
-              <h3>{item.title}</h3>
-              <p>{item.summary}</p>
+          {ARTICLES.map((article) => (
+            <article
+              className="article-card"
+              key={article.id}
+              onClick={() => setSelectedArticle(article)}
+              onKeyDown={(e) => e.key === 'Enter' && setSelectedArticle(article)}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="article-card-top">
+                <span className="article-cat-badge">{article.category}</span>
+                <span className="article-read-time">{article.readTime}</span>
+              </div>
+              <h3>{article.title}</h3>
+              <p>{article.summary}</p>
+              <span className="article-read-more">Read article →</span>
             </article>
           ))}
         </div>
@@ -1271,10 +1407,7 @@ export default function App() {
             <h2>Get help or send feedback</h2>
           </div>
         </div>
-        <div className="contact-card">
-          <p>Have questions about BudgetFlow? Send feedback or ask for a new feature.</p>
-          <a className="link-button" href="mailto:olokunde.o@gmail.com">Email support</a>
-        </div>
+        <ContactForm />
       </section>
 
       <section className="page-section container" id="privacy">

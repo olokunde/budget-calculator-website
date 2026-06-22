@@ -18,6 +18,8 @@
   gap: 20px;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
+  position: relative;
+  z-index: 10;
 }
 .brand-block {
   display:flex;
@@ -44,6 +46,33 @@
 }
 .site-nav a { text-decoration:none; color:var(--text); padding:8px 10px; border-radius:8px; font-weight:500 }
 .site-nav a:hover { background: rgba(13,14,23,0.04); color:var(--text-h) }
+
+.nav-toggle {
+  display:none;
+  background: transparent;
+  border: none;
+  padding: 12px;
+  margin-left: 12px;
+  cursor: pointer;
+  border-radius: 12px;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  margin: 4px 0;
+  background: var(--text-h);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.nav-toggle.open span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.nav-toggle.open span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle.open span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
 
 /* Hero */
 .hero {
@@ -131,4 +160,36 @@
   .metric-grid { grid-template-columns: 1fr }
   .hero { grid-template-columns: 1fr }
   #root { padding: 0 }
+}
+
+@media (max-width: 768px) {
+  body { overflow-x: hidden; }
+  .site-header { flex-wrap: wrap; align-items: center; padding: 14px 16px; }
+  .site-nav { position: absolute; inset: 70px 16px auto auto; right: 16px; left: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 16px 40px rgba(11,14,30,0.08); flex-direction: column; gap: 0; padding: 12px 0; display: none; z-index: 20; }
+  .site-nav.active { display: flex; }
+  .site-nav a { width: 100%; padding: 14px 16px; border-radius: 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .site-nav a:last-child { border-bottom: none; }
+  .nav-toggle { display: inline-flex; }
+  .hero { padding: 28px 16px; gap: 20px; }
+  .hero-highlights { gap: 10px; }
+  .hero-copy h1 { font-size: clamp(28px, 7vw, 34px); line-height: 1.08; }
+  .hero p { font-size: 15px; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .btn { width: 100%; min-height: 50px; padding: 14px 18px; }
+  .btn-secondary { width: 100%; }
+  .container { padding: 16px 16px 24px; gap: 20px; }
+  .calculator-card, .results-card, .sub-card, .ad-banner .ad-slot { width: 100%; }
+  .section-header { flex-direction: column; align-items: stretch; }
+  .field-grid, .field-grid.small { grid-template-columns: 1fr; }
+  .field { width: 100%; }
+  .input-group input { width: 100%; }
+  .results-card { padding: 18px; }
+  .metric-grid { grid-template-columns: 1fr; }
+  .summary-card { padding: 16px; }
+  .health-score { width: 100%; }
+  .sub-grid { display: grid; gap: 16px; }
+  .result-panel { margin-left: 0; }
+  .features .feature-grid, .faq .faq-grid { grid-template-columns: 1fr; }
+  .footer-grid { flex-direction: column; align-items: flex-start; }
+  .footer { padding: 24px 16px; }
 }

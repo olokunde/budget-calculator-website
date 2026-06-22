@@ -41,6 +41,7 @@ export default function App() {
   const [inputs, setInputs] = useLocalState(STORAGE_KEY, defaultInputs)
   const [savingsGoal, setSavingsGoal] = useLocalState('savingsGoal:v1', { current: '', target: '', monthly: '' })
   const [debtPayoff, setDebtPayoff] = useLocalState('debtPayoff:v1', { balance: '', rate: '', payment: '' })
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const setField = (key, value) => setInputs((state) => ({ ...state, [key]: value }))
   const setSavingsField = (key, value) => setSavingsGoal((state) => ({ ...state, [key]: value }))
@@ -181,12 +182,23 @@ export default function App() {
             <p className="brand-tagline">Modern finance for every plan</p>
           </div>
         </div>
-        <nav className="site-nav" aria-label="Primary navigation">
-          <a href="#home">Home</a>
-          <a href="#budget">Budget Calculator</a>
-          <a href="#savings">Savings Calculator</a>
-          <a href="#debt">Debt Calculator</a>
-          <a href="#about">About</a>
+        <button
+          className={`nav-toggle ${menuOpen ? 'open' : ''}`}
+          aria-label="Toggle navigation"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+          type="button"
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+        <nav className={`site-nav ${menuOpen ? 'active' : ''}`} aria-label="Primary navigation">
+          <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
+          <a href="#budget" onClick={() => setMenuOpen(false)}>Budget Calculator</a>
+          <a href="#savings" onClick={() => setMenuOpen(false)}>Savings Calculator</a>
+          <a href="#debt" onClick={() => setMenuOpen(false)}>Debt Calculator</a>
+          <a href="#about" onClick={() => setMenuOpen(false)}>About</a>
         </nav>
       </header>
 

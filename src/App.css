@@ -1,287 +1,134 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
-}
-
-/* Budget calculator styles */
 .app {
   color: var(--text);
 }
 
-.hero {
-  padding: 28px 0 8px;
-  background: transparent;
-}
-.hero .tag {
-  margin-top: 6px;
-  color: var(--text);
+:root {
+  --accent-success: #10b981;
+  --accent-warn: #f59e0b;
+  --accent-danger: #ef4444;
+  --ring-bg: rgba(0,0,0,0.06);
 }
 
-.container {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 28px;
-  padding: 16px 20px 40px;
-  box-sizing: border-box;
-}
-
-.calculator {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  padding: 18px;
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-}
-
-.calculator form .row {
+/* Header / Navigation */
+.site-header {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
   align-items: center;
-  margin-bottom: 12px;
+  padding: 18px 20px;
+  gap: 20px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
 }
-.calculator label {
-  text-align: left;
-  flex: 1 1 0;
+.brand-block {
+  display:flex;
+  gap:12px;
+  align-items:center;
 }
-.calculator input {
-  width: 160px;
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  text-align: right;
-  background: transparent;
-  color: var(--text-h);
+.brand-mark {
+  width:48px;
+  height:48px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  color: #fff;
+  background: linear-gradient(135deg,#6d28d9,#06b6d4);
+  box-shadow: 0 6px 18px rgba(13,14,23,0.12);
 }
+.brand-name { margin:0; font-weight:600 }
+.brand-tagline { margin:0; font-size:12px; color:var(--text) }
 
-.expenses {
-  margin-top: 8px;
-  border: none;
-  padding: 0;
+.site-nav {
+  display:flex; gap:18px; align-items:center;
 }
-.expenses legend { display:none }
+.site-nav a { text-decoration:none; color:var(--text); padding:8px 10px; border-radius:8px; font-weight:500 }
+.site-nav a:hover { background: rgba(13,14,23,0.04); color:var(--text-h) }
 
-.actions { display:flex; gap:10px; margin-top:12px }
-.btn { padding:8px 12px; border-radius:8px; background: linear-gradient(180deg,var(--accent-bg),transparent); border:1px solid var(--accent-border); color:var(--text-h); cursor:pointer }
-.btn-ghost { background:transparent; border:1px solid var(--border) }
-
-.results {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  padding: 18px;
-  border-radius: 10px;
-  height: fit-content;
+/* Hero */
+.hero {
+  padding: 36px 20px;
+  background: linear-gradient(135deg, rgba(13,42,100,0.06), rgba(6,182,212,0.03));
+  display:grid;
+  grid-template-columns: 1fr 420px;
+  gap: 28px;
+  align-items: center;
 }
-.results h2 { margin-top:0 }
-.result-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed var(--border) }
+.hero-copy { text-align:left }
+.hero-copy h1 { max-width: 58ch; margin:0; font-size: clamp(26px, 4.8vw, 44px); line-height:1.06; z-index:1 }
+.hero-highlights { display:flex; flex-direction:column; gap:12px; z-index:2 }
+.eyebrow { font-size:13px; color:var(--accent); font-weight:600 }
+.hero h1 { margin: 8px 0 12px }
+.hero p { color:var(--text) }
+.hero-actions { margin-top:16px; display:flex; gap:12px }
+.btn { border: none; cursor:pointer; border-radius:10px; padding:12px 18px; font-weight:600 }
+.btn-primary { background: linear-gradient(90deg,#4f46e5,#06b6d4); color:#fff; box-shadow: 0 10px 30px rgba(79,70,229,0.12) }
+.btn-secondary { background: transparent; border:1px solid var(--border); color:var(--text-h) }
 
-.bars { margin-top:12px }
-.bar { margin-bottom:12px }
-.bar-label { font-size:13px; color:var(--text) }
-.bar-track { height:14px; background:var(--code-bg); border-radius:999px; overflow:hidden; margin-top:6px }
-.bar-fill { height:100%; background:linear-gradient(90deg,#3b82f6,#06b6d4); width:0 }
-.bar-fill.savings { background:linear-gradient(90deg,#10b981,#06b6d4) }
+.hero-highlights { display:flex; flex-direction:column; gap:12px }
+.stat-card { background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.6)); padding:14px; border-radius:12px; box-shadow: var(--shadow); text-align:left }
+.stat-title { font-size:13px; color:var(--text); margin-bottom:6px }
 
-.recommended { margin-top:14px; border-top:1px solid var(--border); padding-top:12px }
-.rec-row { display:flex; justify-content:space-between; padding:6px 0 }
+/* Main layout */
+.container { width:1126px; max-width:100%; margin: 0 auto; display:grid; grid-template-columns: 1fr 360px; gap:28px; padding: 20px }
 
-.advice { margin-top:12px; padding:10px; border-radius:8px }
-.advice.info { background: rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.12); color:var(--text-h) }
-.advice.warning { background: rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.12); color:var(--text-h) }
-.advice.danger { background: rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.12); color:var(--text-h) }
-.advice.positive { background: rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.12); color:var(--text-h) }
+/* Calculator card */
+.calculator-card { background: var(--bg); border-radius:16px; padding:22px; box-shadow: 0 18px 50px rgba(11,14,30,0.06); border:1px solid rgba(15,15,15,0.03) }
+.section-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px }
+.section-header .eyebrow { display:block }
 
-.seo { padding: 12px 20px 40px; text-align:left }
-.seo h2 { margin-top:18px }
+.field-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px }
+.field-grid.small { grid-template-columns: 1fr 1fr 1fr }
+.field { text-align:left }
+.field label { display:block; margin-bottom:6px; font-weight:600; color:var(--text-h) }
+.input-group { position:relative }
+.input-group input { width:100%; padding:12px 14px 12px 40px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--text-h); font-size:16px; box-shadow: inset 0 -1px 0 rgba(0,0,0,0.02) }
+.input-group input:focus { outline: none; box-shadow: 0 8px 30px rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.4) }
+.currency-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text); font-weight:700 }
 
-.footer { border-top:1px solid var(--border); padding:18px 0; margin-top:20px }
-.footer nav { display:flex; gap:12px; justify-content:center; margin-bottom:8px }
+.actions { display:flex; gap:12px; margin-top:16px }
+
+/* Results panel */
+.results-card { background: var(--bg); border-radius:16px; padding:20px; box-shadow: 0 12px 40px rgba(11,14,30,0.06); border:1px solid rgba(15,15,15,0.03); height:fit-content }
+.metric-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px }
+.metric { padding:12px; border-radius:10px; color:#fff; display:flex; flex-direction:column; gap:6px }
+.metric-expense { background: linear-gradient(180deg,#ef4444,#f97316) }
+.metric-balance { background: linear-gradient(180deg,#06b6d4,#3b82f6) }
+.metric-rate { background: linear-gradient(180deg,#10b981,#06b6d4) }
+.metric strong { font-size:18px }
+
+.progress-block { margin-top:14px }
+.progress-label { display:flex; justify-content:space-between; align-items:center }
+.progress-track { height:12px; background:var(--code-bg); border-radius:999px; overflow:hidden; margin-top:8px }
+.progress-fill { height:100%; transition: width 900ms cubic-bezier(.2,.9,.2,1); background: linear-gradient(90deg,#3b82f6,#06b6d4); width:0 }
+.progress-fill.savings { background: linear-gradient(90deg,#10b981,#06b6d4) }
+
+.summary-card { margin-top:14px; padding:12px; border-radius:10px; background: linear-gradient(180deg, rgba(244,244,246,0.6), rgba(255,255,255,0.4)); border:1px solid var(--border) }
+
+.health-card { margin-top:14px; display:flex; flex-direction:column; gap:8px; align-items:flex-start }
+.health-score { display:flex; align-items:center; gap:12px }
+.health-ring { width:72px; height:72px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:var(--text-h); font-weight:700 }
+.health-label { font-size:13px; color:var(--text-h) }
+
+.advice { margin-top:12px; padding:10px; border-radius:10px }
+
+.subcalculators { margin-top:18px }
+.sub-card { background: var(--bg); border-radius:12px; padding:16px; border:1px solid var(--border); box-shadow: var(--shadow); margin-bottom:16px }
+.result-panel { margin-left:12px }
+
+.features .feature-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px }
+.faq .faq-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px }
+
+.ad-banner .ad-slot { height:90px; border-radius:8px; background:linear-gradient(90deg,#f3f4f6,#ffffff); display:flex; align-items:center; justify-content:center; color:var(--text); border:1px dashed var(--border) }
+
+.footer { border-top:1px solid var(--border); padding:28px 20px; margin-top:28px }
+.footer-grid { display:flex; justify-content:space-between; gap:20px }
+.footer-nav a { margin-right:12px; color:var(--text) }
 
 @media (max-width: 900px) {
   .container { grid-template-columns: 1fr; padding:12px }
-  .calculator input { width: 120px }
-  .results { order: -1 }
+  .field-grid { grid-template-columns: 1fr }
+  .metric-grid { grid-template-columns: 1fr }
+  .hero { grid-template-columns: 1fr }
+  #root { padding: 0 }
 }

@@ -74,12 +74,14 @@ h2 {
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
+  font-size: clamp(28px, 5.6vw, 56px);
+  letter-spacing: -1.2px;
+  margin: 28px 0 12px;
+  line-height: 1.03;
+  -webkit-font-smoothing:antialiased;
   @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+    font-size: clamp(24px, 7.6vw, 36px);
+    margin: 18px 0 8px;
   }
 }
 h2 {

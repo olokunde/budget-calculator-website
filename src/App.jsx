@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 
 const STORAGE_KEY = 'budgetInputs:v1'
@@ -44,6 +44,56 @@ function useLocalState(key, initial) {
   return [state, setState]
 }
 
+function useAnimatedNumber(target, duration = 500) {
+  const safeTarget = Number.isFinite(target) ? target : 0
+  const [value, setValue] = useState(safeTarget)
+  const prevRef = useRef(safeTarget)
+  const rafRef = useRef(null)
+  useEffect(() => {
+    const from = prevRef.current
+    prevRef.current = safeTarget
+    if (from === safeTarget) return
+    const start = performance.now()
+    const tick = (now) => {
+      const t = Math.min((now - start) / duration, 1)
+      const ease = 1 - Math.pow(1 - t, 3)
+      setValue(from + (safeTarget - from) * ease)
+      if (t < 1) rafRef.current = requestAnimationFrame(tick)
+    }
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [safeTarget, duration])
+  return value
+}
+
+function useInView(options = {}) {
+  const ref = useRef(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setInView(true) },
+      { threshold: 0.06, ...options }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  return [ref, inView]
+}
+
+const CALC_ICONS = {
+  budget: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>,
+  savings: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4.5c2-1.5 2-2.7 2-4.5 0-.5 0-1-.2-1.5"/><path d="M2 9.5C2 7 5 5 8 5"/><circle cx="16" cy="8" r="1"/></svg>,
+  debt: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+  compound: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+  loan: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>,
+  mortgage: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  retirement: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  emergency: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+}
+
 function CompoundCalculator() {
   const [state, setState] = useLocalState('compoundCalc:v1', {
     principal: '',
@@ -69,6 +119,25 @@ function CompoundCalculator() {
       futureValue,
       totalInterest: Math.max(0, futureValue - principal - contributions),
     }
+  }, [state])
+
+  const sparkData = useMemo(() => {
+    const principal = useSafeNumber(state.principal)
+    const rate = useSafeNumber(state.rate) / 100
+    const years = Math.max(0, Math.min(30, parseFloat(state.years) || 0))
+    const contribution = useSafeNumber(state.contribution)
+    const n = Math.max(1, parseInt(state.compoundsPerYear, 10) || 1)
+    if (years < 2 || (principal === 0 && contribution === 0)) return []
+    const pts = []
+    const count = Math.min(Math.floor(years), 20)
+    for (let y = 1; y <= count; y++) {
+      const acc = principal * Math.pow(1 + rate / n, n * y)
+      const cg = rate > 0
+        ? contribution * ((Math.pow(1 + rate / n, n * y) - 1) / (rate / n))
+        : contribution * y
+      pts.push(acc + cg)
+    }
+    return pts
   }, [state])
 
   return (
@@ -151,6 +220,21 @@ function CompoundCalculator() {
               <strong>${fmt(result.totalInterest)}</strong>
             </div>
             <p className="result-summary">Compound interest grows your balance faster when earnings are reinvested.</p>
+            {sparkData.length > 1 && (
+              <div className="spark-wrap" aria-hidden>
+                <div className="spark-chart">
+                  {sparkData.map((v, i) => (
+                    <div
+                      key={i}
+                      className="spark-bar"
+                      style={{ height: `${(v / sparkData[sparkData.length - 1]) * 100}%` }}
+                      title={`Year ${i + 1}: $${fmt(v)}`}
+                    />
+                  ))}
+                </div>
+                <p className="spark-label">Growth over {sparkData.length} {sparkData.length === 1 ? 'year' : 'years'}</p>
+              </div>
+            )}
             <button
               type="button"
               className="btn btn-secondary"
@@ -520,6 +604,12 @@ function EmergencyCalculator() {
               <strong>${fmt(result.neededPerMonth)}</strong>
             </div>
             <p className="result-summary">This helps you build a reserve for at least several months of living costs.</p>
+            {result.funded && (
+              <div className="goal-complete" role="status">
+                <span className="goal-complete-icon">✓</span>
+                Fully Funded — target met!
+              </div>
+            )}
             <button type="button" className="btn btn-secondary" onClick={() => setState({ monthlyExpenses: '', months: '3', currentSavings: '' })}>Reset</button>
           </div>
         </div>
@@ -626,6 +716,12 @@ export default function App() {
     return Math.round(Math.max(0, Math.min(100, 90 - expenseRatio * 30 + Math.min(values.savingsRate, 50) * 0.8)))
   }, [values])
 
+  const [toolkitRef, toolkitInView] = useInView()
+  const animTotalExpenses = useAnimatedNumber(values.totalExpenses)
+  const animMoneyLeft = useAnimatedNumber(values.moneyLeft)
+  const animSavingsRate = useAnimatedNumber(values.savingsRate)
+  const animHealthScore = useAnimatedNumber(healthScore)
+
   return (
     <div className="app">
       <header className="site-header">
@@ -700,7 +796,7 @@ export default function App() {
             <h2>Choose the right tool for your financial goal</h2>
           </div>
         </div>
-        <div className="toolkit-grid">
+        <div ref={toolkitRef} className={`toolkit-grid${toolkitInView ? ' in-view' : ''}`}>
           {[
             { id: 'budget', title: 'Budget Calculator', description: 'Plan monthly spending and cash flow.' },
             { id: 'savings', title: 'Savings Goal', description: 'Track your savings milestones.' },
@@ -712,6 +808,7 @@ export default function App() {
             { id: 'emergency', title: 'Emergency Fund', description: 'Plan a safety net for 3–6 months.' },
           ].map((item) => (
             <article className="toolkit-card" key={item.id}>
+              <div className="toolkit-icon">{CALC_ICONS[item.id]}</div>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
               <a className="link-button" href={`#${item.id}`} onClick={() => setMenuOpen(false)}>Open tool</a>
@@ -724,7 +821,10 @@ export default function App() {
         <section className="calculator-card page-section" id="budget">
           <div className="section-header">
             <div>
-              <span className="eyebrow">Budget Calculator</span>
+              <div className="section-icon-row">
+                <div className="section-icon">{CALC_ICONS.budget}</div>
+                <span className="eyebrow">Budget Calculator</span>
+              </div>
               <h2>Premium cash flow planning</h2>
             </div>
           </div>
@@ -802,15 +902,15 @@ export default function App() {
           <div className="metric-grid">
             <div className="metric metric-expense">
               <span>Total expenses</span>
-              <strong>${fmt(values.totalExpenses)}</strong>
+              <strong>${fmt(animTotalExpenses)}</strong>
             </div>
             <div className="metric metric-balance">
               <span>Money left</span>
-              <strong>${fmt(values.moneyLeft)}</strong>
+              <strong>${fmt(animMoneyLeft)}</strong>
             </div>
             <div className="metric metric-rate">
               <span>Savings rate</span>
-              <strong>{fmt(values.savingsRate)}%</strong>
+              <strong>{fmt(animSavingsRate)}%</strong>
             </div>
           </div>
           <div className="progress-block">
@@ -850,11 +950,11 @@ export default function App() {
               <div
                 className="health-ring"
                 style={{
-                  background: `conic-gradient(${healthScore >= 75 ? 'var(--accent-success)' : healthScore >= 50 ? 'var(--accent-warn)' : 'var(--accent-danger)'} ${healthScore}%, var(--ring-bg) ${healthScore}% 100%)`,
+                  background: `conic-gradient(${healthScore >= 75 ? 'var(--accent-success)' : healthScore >= 50 ? 'var(--accent-warn)' : 'var(--accent-danger)'} ${animHealthScore.toFixed(1)}%, var(--ring-bg) ${animHealthScore.toFixed(1)}% 100%)`,
                 }}
                 aria-hidden
               >
-                <strong>{healthScore}</strong>
+                <strong>{Math.round(animHealthScore)}</strong>
               </div>
               <span className="health-label">Financial health score</span>
             </div>
@@ -867,7 +967,10 @@ export default function App() {
       <section className="calculator-section page-section" id="savings">
         <div className="container section-header">
           <div>
-            <span className="eyebrow">Savings Goal Calculator</span>
+            <div className="section-icon-row">
+              <div className="section-icon">{CALC_ICONS.savings}</div>
+              <span className="eyebrow">Savings Goal Calculator</span>
+            </div>
             <h2>Plan your next savings milestone</h2>
           </div>
         </div>
@@ -928,6 +1031,12 @@ export default function App() {
                 <p className="result-summary">
                   {savingsResults.months ? `At $${fmt(savingsResults.monthly)} per month, you will reach your goal in ${savingsResults.months} months.` : 'Enter a monthly deposit to estimate your timeline.'}
                 </p>
+                {savingsResults.remaining === 0 && savingsResults.target > 0 && (
+                  <div className="goal-complete" role="status">
+                    <span className="goal-complete-icon">✓</span>
+                    Goal reached — you&apos;re there!
+                  </div>
+                )}
                 <button className="btn btn-secondary" type="button" onClick={() => setSavingsGoal({ current: '', target: '', monthly: '' })}>Reset</button>
               </div>
             </div>
@@ -952,7 +1061,10 @@ export default function App() {
       <section className="calculator-section page-section" id="debt">
         <div className="container section-header">
           <div>
-            <span className="eyebrow">Debt Payoff Calculator</span>
+            <div className="section-icon-row">
+              <div className="section-icon">{CALC_ICONS.debt}</div>
+              <span className="eyebrow">Debt Payoff Calculator</span>
+            </div>
             <h2>Estimate your repayment timeline</h2>
           </div>
         </div>
@@ -1025,7 +1137,10 @@ export default function App() {
       <section className="calculator-section page-section" id="compound">
         <div className="container section-header">
           <div>
-            <span className="eyebrow">Compound Interest Calculator</span>
+            <div className="section-icon-row">
+              <div className="section-icon">{CALC_ICONS.compound}</div>
+              <span className="eyebrow">Compound Interest Calculator</span>
+            </div>
             <h2>See how savings grow with time</h2>
           </div>
         </div>
@@ -1035,7 +1150,10 @@ export default function App() {
       <section className="calculator-section page-section" id="loan">
         <div className="container section-header">
           <div>
-            <span className="eyebrow">Loan Calculator</span>
+            <div className="section-icon-row">
+              <div className="section-icon">{CALC_ICONS.loan}</div>
+              <span className="eyebrow">Loan Calculator</span>
+            </div>
             <h2>Compare payments and total interest</h2>
           </div>
         </div>
@@ -1045,7 +1163,10 @@ export default function App() {
       <section className="calculator-section page-section" id="mortgage">
         <div className="container section-header">
           <div>
-            <span className="eyebrow">Mortgage Calculator</span>
+            <div className="section-icon-row">
+              <div className="section-icon">{CALC_ICONS.mortgage}</div>
+              <span className="eyebrow">Mortgage Calculator</span>
+            </div>
             <h2>Estimate monthly mortgage costs</h2>
           </div>
         </div>
@@ -1055,7 +1176,10 @@ export default function App() {
       <section className="calculator-section page-section" id="retirement">
         <div className="container section-header">
           <div>
-            <span className="eyebrow">Retirement Planner</span>
+            <div className="section-icon-row">
+              <div className="section-icon">{CALC_ICONS.retirement}</div>
+              <span className="eyebrow">Retirement Planner</span>
+            </div>
             <h2>Project your retirement savings</h2>
           </div>
         </div>
@@ -1065,7 +1189,10 @@ export default function App() {
       <section className="calculator-section page-section" id="emergency">
         <div className="container section-header">
           <div>
-            <span className="eyebrow">Emergency Fund Calculator</span>
+            <div className="section-icon-row">
+              <div className="section-icon">{CALC_ICONS.emergency}</div>
+              <span className="eyebrow">Emergency Fund Calculator</span>
+            </div>
             <h2>Build your safety net</h2>
           </div>
         </div>

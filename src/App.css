@@ -152,6 +152,8 @@ html, body {
 .stat-card { background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)); padding:18px; border-radius:14px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); text-align:left; border: 1px solid rgba(255,255,255,0.5); position: relative; z-index: 2; transition: all 180ms ease; }
 .stat-card:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0,0,0,0.1); }
 .stat-title { font-size:12px; color:var(--text); margin-bottom:8px; font-weight: 600; }
+.stat-card strong { font-weight: 700; font-size: 18px; color: var(--text-h); display: block; margin-bottom: 4px; }
+.stat-card span { font-size: 14px; color: var(--text); line-height: 1.5; }
 .stat-value { font-weight: 700; font-size: 20px; color: var(--text-h); }
 
 /* Main layout */

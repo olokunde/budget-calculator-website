@@ -73,7 +73,7 @@ function useDarkMode() {
     try {
       const stored = localStorage.getItem('theme')
       if (stored) return stored === 'dark'
-      return window.matchMedia('(prefers-color-scheme: dark)').matches
+      return false // default to light mode regardless of system preference
     } catch { return false }
   })
   useEffect(() => {
@@ -874,9 +874,10 @@ export default function App() {
           onClick={() => setMenuOpen((open) => !open)}
           type="button"
         >
-          <span />
-          <span />
-          <span />
+          <span className="nav-bar" />
+          <span className="nav-bar" />
+          <span className="nav-bar" />
+          <span className="nav-label">{menuOpen ? 'Close' : 'Menu'}</span>
         </button>
         <nav className={`site-nav ${menuOpen ? 'active' : ''}`} aria-label="Primary navigation">
           <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>

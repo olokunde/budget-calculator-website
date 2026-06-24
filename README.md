@@ -86,3 +86,7 @@ git commit -m "chore: remove duplicate nested project"
 - If you use a custom domain, update `index.html` meta tags (`canonical`, Open Graph image URLs) and `sitemap.xml`/`robots.txt` entries to your domain.
 
 If you want, I can create the GitHub repo, remove duplicate files, and trigger an initial Vercel deploy for you — tell me which you'd like me to do next.
+
+## Update
+
+This project helps users plan budgets, track savings goals, and manage personal finances.

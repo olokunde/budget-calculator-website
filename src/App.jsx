@@ -1445,7 +1445,7 @@ export default function App() {
             <a href="#terms">Terms</a>
           </nav>
         </div>
-        <p className="footer-bottom">© {new Date().getFullYear()} BudgetFlow. Built for smart spending and long-term savings.</p>
+        <p className="footer-bottom">© {new Date().getFullYear()} BudgetFlow · Built for smart spending and long-term savings by Olokunde Olaoluwa Olayinka</p>
       </footer>
     </div>
   )

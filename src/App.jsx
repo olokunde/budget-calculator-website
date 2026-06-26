@@ -1,8 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { ARTICLES } from './articles'
 
 const STORAGE_KEY = 'budgetInputs:v1'
+
+const CurrencyContext = createContext('$')
+
+const CURRENCIES = [
+  { label: 'USD $', symbol: '$' },
+  { label: 'GBP £', symbol: '£' },
+  { label: 'EUR €', symbol: '€' },
+  { label: 'NGN ₦', symbol: '₦' },
+  { label: 'JPY ¥', symbol: '¥' },
+  { label: 'CAD C$', symbol: 'C$' },
+  { label: 'AUD A$', symbol: 'A$' },
+]
 
 const defaultInputs = {
   income: '',
@@ -261,6 +273,8 @@ function CompoundCalculator() {
     return pts
   }, [state])
 
+  const currency = useContext(CurrencyContext)
+
   return (
     <div className="section-body container">
       <div className="calculator-card">
@@ -334,11 +348,11 @@ function CompoundCalculator() {
           <div className="result-panel">
             <div className="result-stat">
               <span>Future value</span>
-              <strong>${fmt(result.futureValue)}</strong>
+              <strong>{currency}{fmt(result.futureValue)}</strong>
             </div>
             <div className="result-stat">
               <span>Total interest</span>
-              <strong>${fmt(result.totalInterest)}</strong>
+              <strong>{currency}{fmt(result.totalInterest)}</strong>
             </div>
             <p className="result-summary">Compound interest grows your balance faster when earnings are reinvested.</p>
             {sparkData.length > 1 && (
@@ -349,7 +363,7 @@ function CompoundCalculator() {
                       key={i}
                       className="spark-bar"
                       style={{ height: `${(v / sparkData[sparkData.length - 1]) * 100}%` }}
-                      title={`Year ${i + 1}: $${fmt(v)}`}
+                      title={`Year ${i + 1}: ${currency}${fmt(v)}`}
                     />
                   ))}
                 </div>
@@ -376,6 +390,8 @@ function LoanCalculator() {
     rate: '',
     term: '',
   })
+
+  const currency = useContext(CurrencyContext)
 
   const result = useMemo(() => {
     const amount = useSafeNumber(state.amount)
@@ -438,11 +454,11 @@ function LoanCalculator() {
           <div className="result-panel">
             <div className="result-stat">
               <span>Monthly payment</span>
-              <strong>${fmt(result.monthlyPayment)}</strong>
+              <strong>{currency}{fmt(result.monthlyPayment)}</strong>
             </div>
             <div className="result-stat">
               <span>Total interest</span>
-              <strong>${fmt(result.totalInterest)}</strong>
+              <strong>{currency}{fmt(result.totalInterest)}</strong>
             </div>
             <p className="result-summary">Compare loan terms and select the payment that fits your budget.</p>
             <button type="button" className="btn btn-secondary" onClick={() => setState({ amount: '', rate: '', term: '' })}>Reset</button>
@@ -460,6 +476,8 @@ function MortgageCalculator() {
     rate: '',
     term: '',
   })
+
+  const currency = useContext(CurrencyContext)
 
   const result = useMemo(() => {
     const price = useSafeNumber(state.price)
@@ -538,11 +556,11 @@ function MortgageCalculator() {
           <div className="result-panel">
             <div className="result-stat">
               <span>Loan amount</span>
-              <strong>${fmt(result.loanAmount)}</strong>
+              <strong>{currency}{fmt(result.loanAmount)}</strong>
             </div>
             <div className="result-stat">
               <span>Monthly payment</span>
-              <strong>${fmt(result.monthlyPayment)}</strong>
+              <strong>{currency}{fmt(result.monthlyPayment)}</strong>
             </div>
             <p className="result-summary">This calculator helps you estimate what a mortgage payment will feel like month to month.</p>
             <button type="button" className="btn btn-secondary" onClick={() => setState({ price: '', down: '', rate: '', term: '' })}>Reset</button>
@@ -560,6 +578,8 @@ function RetirementCalculator() {
     rate: '',
     years: '',
   })
+
+  const currency = useContext(CurrencyContext)
 
   const result = useMemo(() => {
     const current = useSafeNumber(state.current)
@@ -638,11 +658,11 @@ function RetirementCalculator() {
           <div className="result-panel">
             <div className="result-stat">
               <span>Estimated balance</span>
-              <strong>${fmt(result.futureValue)}</strong>
+              <strong>{currency}{fmt(result.futureValue)}</strong>
             </div>
             <div className="result-stat">
               <span>Estimated growth</span>
-              <strong>${fmt(result.totalGrowth)}</strong>
+              <strong>{currency}{fmt(result.totalGrowth)}</strong>
             </div>
             <p className="result-summary">Use this estimate to keep your retirement contributions on track.</p>
             <button type="button" className="btn btn-secondary" onClick={() => setState({ current: '', annual: '', rate: '', years: '' })}>Reset</button>
@@ -659,6 +679,8 @@ function EmergencyCalculator() {
     months: '3',
     currentSavings: '',
   })
+
+  const currency = useContext(CurrencyContext)
 
   const result = useMemo(() => {
     const monthlyExpenses = useSafeNumber(state.monthlyExpenses)
@@ -718,11 +740,11 @@ function EmergencyCalculator() {
           <div className="result-panel">
             <div className="result-stat">
               <span>Fund target</span>
-              <strong>${fmt(result.target)}</strong>
+              <strong>{currency}{fmt(result.target)}</strong>
             </div>
             <div className="result-stat">
               <span>Monthly needed</span>
-              <strong>${fmt(result.neededPerMonth)}</strong>
+              <strong>{currency}{fmt(result.neededPerMonth)}</strong>
             </div>
             <p className="result-summary">This helps you build a reserve for at least several months of living costs.</p>
             {result.funded && (
@@ -739,13 +761,98 @@ function EmergencyCalculator() {
   )
 }
 
+function BackToTop() {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const h = () => setShow(window.scrollY > 400)
+    window.addEventListener('scroll', h, { passive: true })
+    return () => window.removeEventListener('scroll', h)
+  }, [])
+  if (!show) return null
+  return (
+    <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+    </button>
+  )
+}
+
+const EXPENSE_COLORS = ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
+
+function DonutChart({ inputs, currency }) {
+  const segments = [
+    { label: 'Rent/Housing', key: 'rent' },
+    { label: 'Food', key: 'food' },
+    { label: 'Transport', key: 'transport' },
+    { label: 'Utilities', key: 'utilities' },
+    { label: 'Debt', key: 'debt' },
+    { label: 'Subscriptions', key: 'subs' },
+    { label: 'Other', key: 'other' },
+  ].map((s, i) => ({
+    ...s,
+    value: parseFloat(String(inputs[s.key] || '0').replace(/,/g, '')) || 0,
+    color: EXPENSE_COLORS[i],
+  })).filter(s => s.value > 0)
+
+  const total = segments.reduce((sum, s) => sum + s.value, 0)
+  if (total === 0) return null
+
+  const cx = 80, cy = 80, r = 56, sw = 22
+  const circ = 2 * Math.PI * r
+  let cum = 0
+
+  return (
+    <div className="donut-wrap">
+      <h3 className="donut-title">Spending breakdown</h3>
+      <div className="donut-body">
+        <svg viewBox="0 0 160 160" width="148" height="148" aria-hidden="true">
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border)" strokeWidth={sw} />
+          {segments.map((seg, i) => {
+            const pct = seg.value / total
+            const dash = pct * circ
+            const rot = -90 + cum * 360
+            cum += pct
+            return (
+              <circle key={i} cx={cx} cy={cy} r={r} fill="none"
+                stroke={seg.color} strokeWidth={sw}
+                strokeDasharray={`${dash} ${circ - dash}`}
+                transform={`rotate(${rot}, ${cx}, ${cy})`}
+              />
+            )
+          })}
+          <text x={cx} y={cy - 7} textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="600">Expenses</text>
+          <text x={cx} y={cy + 10} textAnchor="middle" fontSize="13" fill="var(--text-h)" fontWeight="700">{currency}{fmt(total)}</text>
+        </svg>
+        <div className="donut-legend">
+          {segments.map((s, i) => (
+            <div key={i} className="donut-legend-item">
+              <span className="donut-dot" style={{ background: s.color }} />
+              <span className="donut-label">{s.label}</span>
+              <strong>{currency}{fmt(s.value)}</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [dark, setDark] = useDarkMode()
   const [inputs, setInputs] = useLocalState(STORAGE_KEY, defaultInputs)
   const [savingsGoal, setSavingsGoal] = useLocalState('savingsGoal:v1', { current: '', target: '', monthly: '' })
   const [debtPayoff, setDebtPayoff] = useLocalState('debtPayoff:v1', { balance: '', rate: '', payment: '' })
+  const [currency, setCurrency] = useLocalState('currency:v1', '$')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [calcDropOpen, setCalcDropOpen] = useState(false)
+  const calcDropRef = useRef(null)
   const [selectedArticle, setSelectedArticle] = useState(null)
+
+  useEffect(() => {
+    if (!calcDropOpen) return
+    const h = (e) => { if (calcDropRef.current && !calcDropRef.current.contains(e.target)) setCalcDropOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [calcDropOpen])
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
@@ -845,7 +952,19 @@ export default function App() {
   const animSavingsRate = useAnimatedNumber(values.savingsRate)
   const animHealthScore = useAnimatedNumber(healthScore)
 
+  const CALC_NAV = [
+    { id: 'budget', label: 'Budget' },
+    { id: 'savings', label: 'Savings Goal' },
+    { id: 'debt', label: 'Debt Payoff' },
+    { id: 'compound', label: 'Compound Interest' },
+    { id: 'loan', label: 'Loan' },
+    { id: 'mortgage', label: 'Mortgage' },
+    { id: 'retirement', label: 'Retirement' },
+    { id: 'emergency', label: 'Emergency Fund' },
+  ]
+
   return (
+    <CurrencyContext.Provider value={currency}>
     <div className="app">
       {selectedArticle && <ArticleOverlay article={selectedArticle} onClose={() => setSelectedArticle(null)} />}
       <header className="site-header">
@@ -856,17 +975,31 @@ export default function App() {
             <p className="brand-tagline">Modern finance for every plan</p>
           </div>
         </div>
-        <button
-          className="theme-toggle"
-          type="button"
-          aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-          onClick={() => setDark((d) => !d)}
-        >
-          {dark
-            ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          }
-        </button>
+
+        <div className="header-controls">
+          <select
+            className="currency-select"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            aria-label="Select currency"
+          >
+            {CURRENCIES.map((c) => (
+              <option key={c.symbol} value={c.symbol}>{c.label}</option>
+            ))}
+          </select>
+          <button
+            className="theme-toggle"
+            type="button"
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            onClick={() => setDark((d) => !d)}
+          >
+            {dark
+              ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            }
+          </button>
+        </div>
+
         <button
           className={`nav-toggle ${menuOpen ? 'open' : ''}`}
           aria-label="Toggle navigation"
@@ -879,16 +1012,36 @@ export default function App() {
           <span className="nav-bar" />
           <span className="nav-label">{menuOpen ? 'Close' : 'Menu'}</span>
         </button>
+
         <nav className={`site-nav ${menuOpen ? 'active' : ''}`} aria-label="Primary navigation">
           <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
-          <a href="#budget" onClick={() => setMenuOpen(false)}>Budget</a>
-          <a href="#savings" onClick={() => setMenuOpen(false)}>Savings</a>
-          <a href="#debt" onClick={() => setMenuOpen(false)}>Debt</a>
-          <a href="#compound" onClick={() => setMenuOpen(false)}>Compound</a>
-          <a href="#loan" onClick={() => setMenuOpen(false)}>Loan</a>
-          <a href="#mortgage" onClick={() => setMenuOpen(false)}>Mortgage</a>
-          <a href="#retirement" onClick={() => setMenuOpen(false)}>Retirement</a>
-          <a href="#emergency" onClick={() => setMenuOpen(false)}>Emergency</a>
+
+          <div className="nav-dropdown" ref={calcDropRef}>
+            <button
+              className="nav-dropdown-trigger"
+              type="button"
+              aria-expanded={calcDropOpen}
+              onClick={() => setCalcDropOpen((o) => !o)}
+            >
+              Calculators
+              <svg className={`nav-caret${calcDropOpen ? ' open' : ''}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            {calcDropOpen && (
+              <div className="nav-dropdown-menu">
+                {CALC_NAV.map((item) => (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    onClick={() => { setCalcDropOpen(false); setMenuOpen(false) }}
+                  >
+                    <span className="drop-icon">{CALC_ICONS[item.id]}</span>
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
           <a href="#articles" onClick={() => setMenuOpen(false)}>Articles</a>
           <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
           <a href="#about" onClick={() => setMenuOpen(false)}>About</a>
@@ -1038,11 +1191,11 @@ export default function App() {
           <div className="metric-grid">
             <div className="metric metric-expense">
               <span>Total expenses</span>
-              <strong>${fmt(animTotalExpenses)}</strong>
+              <strong>{currency}{fmt(animTotalExpenses)}</strong>
             </div>
             <div className="metric metric-balance">
               <span>Money left</span>
-              <strong>${fmt(animMoneyLeft)}</strong>
+              <strong>{currency}{fmt(animMoneyLeft)}</strong>
             </div>
             <div className="metric metric-rate">
               <span>Savings rate</span>
@@ -1076,11 +1229,12 @@ export default function App() {
           <div className="summary-card">
             <h3>Monthly summary</h3>
             <ul>
-              <li>Recommended needs: ${fmt(values.recNeeds)}</li>
-              <li>Recommended wants: ${fmt(values.recWants)}</li>
-              <li>Recommended savings / debt: ${fmt(values.recSavings)}</li>
+              <li>Recommended needs (50%): {currency}{fmt(values.recNeeds)}</li>
+              <li>Recommended wants (30%): {currency}{fmt(values.recWants)}</li>
+              <li>Recommended savings / debt (20%): {currency}{fmt(values.recSavings)}</li>
             </ul>
           </div>
+          <DonutChart inputs={inputs} currency={currency} />
           <div className="health-card">
             <div className="health-score">
               <div
@@ -1158,14 +1312,14 @@ export default function App() {
               <div className="result-panel">
                 <div className="result-stat">
                   <span>Remaining</span>
-                  <strong>${fmt(savingsResults.remaining)}</strong>
+                  <strong>{currency}{fmt(savingsResults.remaining)}</strong>
                 </div>
                 <div className="result-stat">
                   <span>Months to goal</span>
                   <strong>{savingsResults.months || '--'}</strong>
                 </div>
                 <p className="result-summary">
-                  {savingsResults.months ? `At $${fmt(savingsResults.monthly)} per month, you will reach your goal in ${savingsResults.months} months.` : 'Enter a monthly deposit to estimate your timeline.'}
+                  {savingsResults.months ? `At ${currency}${fmt(savingsResults.monthly)} per month, you will reach your goal in ${savingsResults.months} months.` : 'Enter a monthly deposit to estimate your timeline.'}
                 </p>
                 {savingsResults.remaining === 0 && savingsResults.target > 0 && (
                   <div className="goal-complete" role="status">
@@ -1256,7 +1410,7 @@ export default function App() {
                 </div>
                 <div className="result-stat">
                   <span>Estimated interest</span>
-                  <strong>${fmt(debtResults.interestPaid)}</strong>
+                  <strong>{currency}{fmt(debtResults.interestPaid)}</strong>
                 </div>
                 <p className="result-summary">A larger payment shortens your timeline and reduces total interest.</p>
                 <button className="btn btn-secondary" type="button" onClick={() => setDebtPayoff({ balance: '', rate: '', payment: '' })}>Reset</button>
@@ -1447,6 +1601,9 @@ export default function App() {
         </div>
         <p className="footer-bottom">© {new Date().getFullYear()} BudgetFlow · Built for smart spending and long-term savings by Olokunde Olaoluwa Olayinka</p>
       </footer>
+
+      <BackToTop />
     </div>
+    </CurrencyContext.Provider>
   )
 }

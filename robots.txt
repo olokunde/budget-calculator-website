@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: https://example.com/sitemap.xml
+Sitemap: https://budget-calculator-website.vercel.app/sitemap.xml
 
 # If using AdSense, add allowed crawler directives per AdSense docs
 # See README_DEPLOY.md for more details

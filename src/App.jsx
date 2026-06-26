@@ -284,7 +284,7 @@ function CompoundCalculator() {
             <div className="field">
               <label htmlFor="compound-principal">Starting principal</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="compound-principal"
                   inputMode="numeric"
@@ -322,7 +322,7 @@ function CompoundCalculator() {
             <div className="field">
               <label htmlFor="compound-contribution">Annual contribution</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="compound-contribution"
                   inputMode="numeric"
@@ -415,7 +415,7 @@ function LoanCalculator() {
             <div className="field">
               <label htmlFor="loan-amount">Loan amount</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="loan-amount"
                   inputMode="numeric"
@@ -504,7 +504,7 @@ function MortgageCalculator() {
             <div className="field">
               <label htmlFor="mortgage-price">Home price</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="mortgage-price"
                   inputMode="numeric"
@@ -517,7 +517,7 @@ function MortgageCalculator() {
             <div className="field">
               <label htmlFor="mortgage-down">Down payment</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="mortgage-down"
                   inputMode="numeric"
@@ -606,7 +606,7 @@ function RetirementCalculator() {
             <div className="field">
               <label htmlFor="retirement-current">Current savings</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="retirement-current"
                   inputMode="numeric"
@@ -619,7 +619,7 @@ function RetirementCalculator() {
             <div className="field">
               <label htmlFor="retirement-annual">Annual contribution</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="retirement-annual"
                   inputMode="numeric"
@@ -701,7 +701,7 @@ function EmergencyCalculator() {
             <div className="field">
               <label htmlFor="emergency-expenses">Monthly expenses</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="emergency-expenses"
                   inputMode="numeric"
@@ -726,7 +726,7 @@ function EmergencyCalculator() {
             <div className="field">
               <label htmlFor="emergency-current">Current savings</label>
               <div className="input-group">
-                <span className="currency-icon">$</span>
+                <span className="currency-icon">{currency}</span>
                 <input
                   id="emergency-current"
                   inputMode="numeric"
@@ -1123,7 +1123,7 @@ export default function App() {
               <div className="field">
                 <label htmlFor="income">Monthly income</label>
                 <div className="input-group">
-                  <span className="currency-icon">$</span>
+                  <span className="currency-icon">{currency}</span>
                   <input
                     id="income"
                     inputMode="numeric"
@@ -1146,7 +1146,7 @@ export default function App() {
                 <div className="field" key={key}>
                   <label htmlFor={key}>{label}</label>
                   <div className="input-group">
-                    <span className="currency-icon">$</span>
+                    <span className="currency-icon">{currency}</span>
                     <input
                       id={key}
                       inputMode="numeric"
@@ -1272,7 +1272,7 @@ export default function App() {
                 <div className="field">
                   <label htmlFor="current-savings">Current savings</label>
                   <div className="input-group">
-                    <span className="currency-icon">$</span>
+                    <span className="currency-icon">{currency}</span>
                     <input
                       id="current-savings"
                       inputMode="numeric"
@@ -1285,7 +1285,7 @@ export default function App() {
                 <div className="field">
                   <label htmlFor="target-savings">Target amount</label>
                   <div className="input-group">
-                    <span className="currency-icon">$</span>
+                    <span className="currency-icon">{currency}</span>
                     <input
                       id="target-savings"
                       inputMode="numeric"
@@ -1298,7 +1298,7 @@ export default function App() {
                 <div className="field">
                   <label htmlFor="monthly-savings">Monthly deposit</label>
                   <div className="input-group">
-                    <span className="currency-icon">$</span>
+                    <span className="currency-icon">{currency}</span>
                     <input
                       id="monthly-savings"
                       inputMode="numeric"
@@ -1366,7 +1366,7 @@ export default function App() {
                 <div className="field">
                   <label htmlFor="debt-balance">Debt balance</label>
                   <div className="input-group">
-                    <span className="currency-icon">$</span>
+                    <span className="currency-icon">{currency}</span>
                     <input
                       id="debt-balance"
                       inputMode="numeric"
@@ -1392,7 +1392,7 @@ export default function App() {
                 <div className="field">
                   <label htmlFor="debt-payment">Monthly payment</label>
                   <div className="input-group">
-                    <span className="currency-icon">$</span>
+                    <span className="currency-icon">{currency}</span>
                     <input
                       id="debt-payment"
                       inputMode="numeric"
